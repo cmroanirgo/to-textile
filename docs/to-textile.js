@@ -79,27 +79,6 @@ function unglyph(text) { // the opposites of textile-js' glyph.js, with added HT
     .replace( reDec(190) , "(3\/4)" )
     .replace( reDec(176) , "(o)" )
     .replace( reDec(177) , "(+\/-)")
-
-/*    .replace( /&rarr;/g , '->')//reArrow)
-    .replace( /&times;/g , ' x ')//reDimsign)
-    .replace( /&hellip;/g , '...')//reEllipsis)
-    .replace( /&mdash;/g , ' -- ')//reEmdash)
-    .replace( /&ndash;/g, ' - ')//reEndash)
-    .replace( /&trade;/g, '(tm)')//reTrademark)
-    .replace( /&reg;/g , '(r)')//reRegistered)
-    .replace( /&copy;/g , '(c)')//reCopyright)
-    .replace( /&Prime;/g, '"') //reDoublePrime )
-    .replace( /&rdquo;/g, '"') //reClosingDQuote )
-    .replace( /&ldquo;/g, '"') //reOpenDQuote )
-    .replace( /&prime;/g, '\'') //reSinglePrime )
-    .replace( /&apos;/g , '\'') //reApostrophe )
-    .replace( /&rsquo;/g, '\'') //reClosingSQuote )
-    .replace( /&lsquo;/g, '\'') //reOpenSQuote )
-    .replace( /&frac14;/g, "(1\/4)" )
-    .replace( /&frac12;/g, "(1\/2)" )
-    .replace( /&frac34;/g, "(3\/4)" )
-    .replace( /&deg;/g, "(o)" )
-    .replace( /&plusmn;/g, "(+\/-)")*/
     ;
 }
 
