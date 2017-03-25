@@ -1,0 +1,44 @@
+{
+  "name": "to-textile",
+  "version": "0.0.1",
+  "description": "An HTML to Textile converter",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "start": "watchify -s toTextile -o docs/to-textile.js index.js -v",
+    "build": "browserify -s toTextile -o dist/to-textile.js index.js -u jsdom && uglifyjs dist/to-textile.js -c -m --comments -o dist/to-textile.min.js && cp dist/*.js docs/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cmroanirgo/to-textile.git"
+  },
+  "keywords": [
+    "textile",
+    "html-converter"
+  ],
+  "author": "cmroanirgo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cmroanirgo/to-textile/issues"
+  },
+  "homepage": "https://github.com/cmroanirgo/to-textile#readme",
+  "dependencies": {
+    "collapse-whitespace": "1.1.2",
+    "jsdom": "^9.0.0"
+  },
+  "devDependencies": {
+    "browserify": "^14.1.0",
+    "uglify-js": "^2.8.16",
+    "watchify": "^3.9.0"
+  },
+  "xdevDependencies": {
+    "qunit": "^0.7.6",
+    "saucie": "0.1.3",
+    "standard": "^6.0.8",
+    "testem": "^0.8.2",
+    "watchify": "^2.5.0"
+  }
+}
