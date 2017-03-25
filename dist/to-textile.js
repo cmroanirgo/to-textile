@@ -51,6 +51,58 @@ function htmlToDom (string) {
   return tree
 }
 
+var _reDecCache = {};
+function reDec(val) {
+	var re = _reDecCache[val];
+	if (re) return re;
+	return _reDecCache[val] = re = new RegExp(String.fromCharCode(val), 'g');
+}
+function unglyph(text) { // the opposites of textile-js' glyph.js, with added HTML entities
+	return text
+    .replace( reDec(8594) , '->')//reArrow)
+    .replace( reDec(215) , ' x ')//reDimsign)
+    .replace( reDec(8230) , '...')//reEllipsis)
+    .replace( reDec(8212) , ' -- ')//reEmdash)
+    .replace( reDec(8211) , ' - ')//reEndash)
+    .replace( reDec(8482) , '(tm)')//reTrademark)
+    .replace( reDec(174) , '(r)')//reRegistered)
+    .replace( reDec(169) , '(c)')//reCopyright)
+    .replace( reDec(8243) , '"') //reDoublePrime )
+    .replace( reDec(8221) , '"') //reClosingDQuote )
+    .replace( reDec(8220) , '"') //reOpenDQuote )
+    .replace( reDec(8242) , '\'') //reSinglePrime )
+    .replace( reDec(8217) , '\'') //reApostrophe )
+    .replace( reDec(8217) , '\'') //reClosingSQuote )
+    .replace( reDec(8216) , '\'') //reOpenSQuote )
+    .replace( reDec(188) , "(1\/4)" )
+    .replace( reDec(189) , "(1\/2)" )
+    .replace( reDec(190) , "(3\/4)" )
+    .replace( reDec(176) , "(o)" )
+    .replace( reDec(177) , "(+\/-)")
+
+/*    .replace( /&rarr;/g , '->')//reArrow)
+    .replace( /&times;/g , ' x ')//reDimsign)
+    .replace( /&hellip;/g , '...')//reEllipsis)
+    .replace( /&mdash;/g , ' -- ')//reEmdash)
+    .replace( /&ndash;/g, ' - ')//reEndash)
+    .replace( /&trade;/g, '(tm)')//reTrademark)
+    .replace( /&reg;/g , '(r)')//reRegistered)
+    .replace( /&copy;/g , '(c)')//reCopyright)
+    .replace( /&Prime;/g, '"') //reDoublePrime )
+    .replace( /&rdquo;/g, '"') //reClosingDQuote )
+    .replace( /&ldquo;/g, '"') //reOpenDQuote )
+    .replace( /&prime;/g, '\'') //reSinglePrime )
+    .replace( /&apos;/g , '\'') //reApostrophe )
+    .replace( /&rsquo;/g, '\'') //reClosingSQuote )
+    .replace( /&lsquo;/g, '\'') //reOpenSQuote )
+    .replace( /&frac14;/g, "(1\/4)" )
+    .replace( /&frac12;/g, "(1\/2)" )
+    .replace( /&frac34;/g, "(3\/4)" )
+    .replace( /&deg;/g, "(o)" )
+    .replace( /&plusmn;/g, "(+\/-)")*/
+    ;
+}
+
 /*
  * Flattens DOM tree into single array
  */
@@ -87,7 +139,7 @@ function getContent (node) {
       text += node.childNodes[i].data
     } else continue
   }
-  return text
+  return unglyph(text)
 }
 
 /*
@@ -226,6 +278,7 @@ toTextile = function (input, options) {
   }
   output = getContent(clone)
 
+  // trim excessive whitespaces
   return output.replace(/^[\t\r\n]+|[\t\r\n\s]+$/g, '')
     .replace(/\n\s+\n/g, '\n\n')
     .replace(/\n{3,}/g, '\n\n')
@@ -240,118 +293,6 @@ module.exports = toTextile
 },{"./lib/gfm-converters":2,"./lib/html-parser":3,"./lib/tex-converters":4,"collapse-whitespace":5}],2:[function(require,module,exports){
 'use strict'
 // TODO:
-
-/*
-
-function cell (content, node) {
-  var index = Array.prototype.indexOf.call(node.parentNode.childNodes, node)
-  var prefix = ' '
-  if (index === 0) prefix = '| '
-  return prefix + content + ' |'
-}
-
-var highlightRegEx = /highlight highlight-(\S+)/
-
-module.exports = [
-  {
-    filter: 'br',
-    replacement: function () {
-      return '\n'
-    }
-  },
-  {
-    filter: ['del', 's', 'strike'],
-    replacement: function (content) {
-      return '~~' + content + '~~'
-    }
-  },
-
-  {
-    filter: function (node) {
-      return node.type === 'checkbox' && node.parentNode.nodeName === 'LI'
-    },
-    replacement: function (content, node) {
-      return (node.checked ? '[x]' : '[ ]') + ' '
-    }
-  },
-
-  {
-    filter: ['th', 'td'],
-    replacement: function (content, node) {
-      return cell(content, node)
-    }
-  },
-
-  {
-    filter: 'tr',
-    replacement: function (content, node) {
-      var borderCells = ''
-      var alignMap = { left: ':--', right: '--:', center: ':-:' }
-
-      if (node.parentNode.nodeName === 'THEAD') {
-        for (var i = 0; i < node.childNodes.length; i++) {
-          var align = node.childNodes[i].attributes.align
-          var border = '---'
-
-          if (align) border = alignMap[align.value] || border
-
-          borderCells += cell(border, node.childNodes[i])
-        }
-      }
-      return '\n' + content + (borderCells ? '\n' + borderCells : '')
-    }
-  },
-
-  {
-    filter: 'table',
-    replacement: function (content) {
-      return '\n\n' + content + '\n\n'
-    }
-  },
-
-  {
-    filter: ['thead', 'tbody', 'tfoot'],
-    replacement: function (content) {
-      return content
-    }
-  },
-
-  // Fenced code blocks
-  {
-    filter: function (node) {
-      return node.nodeName === 'PRE' &&
-      node.firstChild &&
-      node.firstChild.nodeName === 'CODE'
-    },
-    replacement: function (content, node) {
-      return '\n\n```\n' + node.firstChild.textContent + '\n```\n\n'
-    }
-  },
-
-  // Syntax-highlighted code blocks
-  {
-    filter: function (node) {
-      return node.nodeName === 'PRE' &&
-      node.parentNode.nodeName === 'DIV' &&
-      highlightRegEx.test(node.parentNode.className)
-    },
-    replacement: function (content, node) {
-      var language = node.parentNode.className.match(highlightRegEx)[1]
-      return '\n\n```' + language + '\n' + node.textContent + '\n```\n\n'
-    }
-  },
-
-  {
-    filter: function (node) {
-      return node.nodeName === 'DIV' &&
-      highlightRegEx.test(node.className)
-    },
-    replacement: function (content) {
-      return '\n\n' + content + '\n\n'
-    }
-  }
-]
-*/
 module.exports = [];
 
 },{}],3:[function(require,module,exports){
@@ -482,7 +423,7 @@ function _makeClassId(node) {
 	if (node.className.length>0 || node.id) {
 		var id = '';
 		if (node.className.length>0)
-			id = node.className.split(' ').slice(0,1); // only get the first class
+			id = node.className; //be indifferent to contents of className
 		if (node.id)
 			id += '#' + node.id;
 		return '('+id+')';
@@ -523,6 +464,8 @@ function attrBlock(node) {
 function attrImg(node) { // like above, but for images
 	return _attr(node, styleFiltersImg)
 }
+
+
 
 module.exports = [
 	{
@@ -633,7 +576,7 @@ module.exports = [
 		replacement: function(content, node) {
 			var titlePart = node.title ? ' (' + node.title + ')' : '';
 			// CM TODO image links: !openwindow1.gif!:http://hobix.com/
-			return '\"' + content +  titlePart + '\":' + node.getAttribute('href')+'\"'
+			return '\"' + content +  titlePart + '\":' + node.getAttribute('href')
 		}
 	},
 
@@ -654,7 +597,7 @@ module.exports = [
 			return node.nodeName === 'PRE' && node.firstChild.nodeName === 'CODE'
 		},
 		replacement: function(content, node) {
-			return '\n\nbc' + attrBlock(node) + '. ' + node.firstChild.textContent + '\n\n'; //node.firstChild.textContent.replace(/\n/g, '\n    ') + '\n\n'
+			return '\n\nbc' + attrBlock(node) + '. ' + node.firstChild.textContent + '\n\n'; 
 		}
 	},
 
@@ -679,7 +622,7 @@ module.exports = [
 		filter: ['ul', 'ol'],
 		replacement: function(content, node) {
 			var strings = [];
-			var a = attr(node); // CM TODO. apply this to first child LI
+			var a = attr(node); 
 			
 			for (var i = 0; i < node.childNodes.length; i++) {
 				if (i==0 && a.length) // first LI gets this Lists's attributes

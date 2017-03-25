@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "start": "watchify -s toTextile -o docs/to-textile.js index.js -v",
+    "start": "watchify -s toTextile -o docs/to-textile.js -u jsdom index.js -v",
     "build": "browserify -s toTextile -o dist/to-textile.js index.js -u jsdom && uglifyjs dist/to-textile.js -c -m --comments -o dist/to-textile.min.js && cp dist/*.js docs/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
